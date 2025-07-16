@@ -20,9 +20,9 @@ This deplyment is for windowns &linux
 
 ### Prerequisites
 
-Install Docker or Docker Desktop
-Install kubectl CLI on machine
-Install Minikube
+-  Install Docker or Docker Desktop
+-  Install kubectl CLI on machine
+-  Install Minikube
 
 #### Step 1 
 -  Start Minikube
@@ -33,7 +33,7 @@ minikube start  --driver=docker
 minikube status
 kubectl config use-context minikube
 ```
-
+#### Step 2
 **Deploying Keycloak on Kubernetes**
 
 PostgreSQL Database Setup
@@ -61,10 +61,14 @@ now to Check PGSQl Deployment
 kubectl get all -n default
 
 ```
-** Retrieve PgSQL Password**
- and Connect to PgSQL to validate connection
 
+#### Step 3
+
+**Retrieve PgSQL Password and Connect to PgSQL to validate connection**
+ 
 For linux 
+
+
 ```
 export POSTGRES_PASSWORD=$(kubectl get secret --namespace default my-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
 echo $POSTGRES_PASSWORD
@@ -95,6 +99,9 @@ kubectl run my-postgresql-client `
   --command -- psql --host my-postgresql -U postgres -d postgres -p 5432
 
 ```
+
+#### Step 4
+
 **KeyCloak Setup**
 
 Enable Ingress Addon: To check if you have the Ingress addon enabled, enter the following command:
@@ -113,7 +120,9 @@ $ kubectl get all -n default
 
 ```
 
+#### Step 5
 Create Ingress: Create an Ingress for Keycloak by entering the following command
+
 For linux 
 
 ```
@@ -121,11 +130,10 @@ wget -q -O - https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/lat
 sed "s/KEYCLOAK_HOST/keycloak.$(minikube ip).nip.io/" | \
 kubectl create -f -
 ```
+
 or for windows
+
 ```
-
-
-
 # Get Minikube IP
 $ip = minikube ip
 
@@ -148,6 +156,7 @@ minikube addons enable ingress # enable if not
 
 ```
 
+#### Step 6
 Execute below commands to get KeyCloak URls
 
 For linux: 
@@ -180,13 +189,18 @@ Write-Host ""
 
 
 
+#### Step 7
 ```
 minikube tunnel
 minikube service keycloak --url
 ```
 Make sure start docker or docker dekstop is running in background 
 
-**Validation of Stroage**
+Now you can access the applicaiton by the URL you get from runing the tunnel or by taking the url of keycloak service 
+login to applicaion with username=admin & password =admin
+Then create the usergroup , assign permisions to it , the create a user and attach user with the group. 
+
+**Valide of Stroage**
 
 Now to connect to database and quey for validaion
 
@@ -200,7 +214,6 @@ kubectl run pg-client `
 
 ```
 then run Query inside it to see the users details 
-
 
 ```
 
