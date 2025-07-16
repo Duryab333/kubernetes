@@ -15,25 +15,38 @@ This project includes runing a Kubernates cluster on Azure.
 
 # Local Deployment
 
-In this step I wil be deploying the applicaiotn localy in minikube cluser so lets start
+In this step I wil be deploying the minikube cluser locally. and install Keycloak inside it in so lets start
+This deplyment is for windowns &linux
 
-
-Prerequisites
-Install VirtualBox on the machine
+### Prerequisites
 
 Install Docker or Docker Desktop
 Install kubectl CLI on machine
 Install Minikube
 
+#### Step 1 
+-  Start Minikube
+-  Verify that Minikube is running
+-  Set up the Kubernetes context to point to Minikube
 ```
 minikube start  --driver=docker
 minikube status
 kubectl config use-context minikube
-minikube addons list
-minikube addons enable storage-provisioner # if not enable 
 ```
 
-now 
+**Deploying Keycloak on Kubernetes**
+
+PostgreSQL Database Setup
+
+Keycloak requires a database backend for storing configuration data.
+
+```
+minikube addons list
+# as per the result storage-provisioner is already enabled on minikube if not then execute this command
+minikube addons enable storage-provisioner 
+```
+
+Deploy PostreSQL using Helm Chart
 
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -41,21 +54,27 @@ helm repo update
 helm install my-postgresql bitnami/postgresql --version 15.1.4
 
 ```
-now to check 
+
+now to Check PGSQl Deployment
 
 ```
 kubectl get all -n default
 
 ```
+** Retrieve PgSQL Password**
+ and Connect to PgSQL to validate connection
 
-for linux 
+For linux 
 ```
 export POSTGRES_PASSWORD=$(kubectl get secret --namespace default my-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
 echo $POSTGRES_PASSWORD
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default my-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+kubectl run my-postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:16.2.0-debian-12-r10 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host my-postgresql -U postgres -d postgres -p 5432
 ```
+or 
 
-
-for windows 
+For windows 
 
 ```
 $secret = kubectl get secret my-postgresql --namespace default -o jsonpath="{.data.postgres-password}"
@@ -75,24 +94,37 @@ kubectl run my-postgresql-client `
   --env="PGPASSWORD=$POSTGRES_PASSWORD" `
   --command -- psql --host my-postgresql -U postgres -d postgres -p 5432
 
+```
+**KeyCloak Setup**
 
-# Get Minikube IP
-$ip = minikube ip
+Enable Ingress Addon: To check if you have the Ingress addon enabled, enter the following command:
 
-# Download the ingress YAML
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/latest/kubernetes/keycloak-ingress.yaml" -OutFile "keycloak-ingress.yaml"
+```
+minikube addons list | grep 'ingress'
+minikube addons enable ingress # If the Ingress addon is not enabled,
+```
 
-# Replace placeholder with actual host
-(Get-Content "keycloak-ingress.yaml") -replace "KEYCLOAK_HOST", "keycloak.$ip.nip.io" | Set-Content "keycloak-ingress.yaml"
+**Deploy KeyClock Deployment & Services**
 
-# Apply the ingress
-kubectl apply -f keycloak-ingress.yaml
 
-minikube addons list     # to check for ingress is enable 
-minikube addons enable ingress # enable if not
+```
 kubectl create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/latest/kubernetes/keycloak.yaml
 $ kubectl get all -n default
 
+```
+
+Create Ingress: Create an Ingress for Keycloak by entering the following command
+For linux 
+
+```
+wget -q -O - https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/latest/kubernetes/keycloak-ingress.yaml | \
+sed "s/KEYCLOAK_HOST/keycloak.$(minikube ip).nip.io/" | \
+kubectl create -f -
+```
+or for windows
+```
+
+
 
 # Get Minikube IP
 $ip = minikube ip
@@ -106,10 +138,33 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/keycloak/keycloak-quic
 # Apply the ingress
 kubectl apply -f keycloak-ingress.yaml
 
+```
 
+To check if the ingress enable 
 
-# Get the Minikube IP
-$ip = minikube ip
+```
+minikube addons list     # to check for ingress is enable 
+minikube addons enable ingress # enable if not
+
+```
+
+Execute below commands to get KeyCloak URls
+
+For linux: 
+
+```
+KEYCLOAK_URL=https://keycloak.$(minikube ip).nip.io &&
+echo "" &&
+echo "Keycloak:                 $KEYCLOAK_URL" &&
+echo "Keycloak Admin Console:   $KEYCLOAK_URL/admin" &&
+echo "Keycloak Account Console: $KEYCLOAK_URL/realms/myrealm/account" &&
+echo ""
+```
+
+For Windows
+
+```
+
 
 # Construct the Keycloak URL
 $KEYCLOAK_URL = "https://keycloak.$ip.nip.io"
@@ -123,11 +178,34 @@ Write-Host ""
 
 ```
 
+
+
 ```
 minikube tunnel
 minikube service keycloak --url
 ```
-start docker dekstop . then the applicaiotn will be runing 
+Make sure start docker or docker dekstop is running in background 
+
+**Validation of Stroage**
+
+Now to connect to database and quey for validaion
+
+```
+kubectl run pg-client `
+  --rm -i -t `
+  --restart=Never `
+  --image=bitnami/postgresql `
+  --env="PGPASSWORD=keycloak" `
+  --command -- psql -h keycloak-postgresql -U keycloak -d keycloak
+
+```
+then run Query inside it to see the users details 
+
+
+```
+
+SELECT * FROM user_entity;
+```
 
 
 
