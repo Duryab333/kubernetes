@@ -205,12 +205,9 @@ Then create the usergroup , assign permisions to it , the create a user and atta
 Now to connect to database and quey for validaion
 
 ```
-kubectl run pg-client `
-  --rm -i -t `
-  --restart=Never `
-  --image=bitnami/postgresql `
-  --env="PGPASSWORD=keycloak" `
-  --command -- psql -h keycloak-postgresql -U keycloak -d keycloak
+
+kubectl exec -it <postgres-pod-name> -n keycloak -- bash
+psql -U keycloak -d keycloak
 
 ```
 then run Query inside it to see the users details 
