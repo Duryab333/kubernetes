@@ -39,8 +39,8 @@ resource "azurerm_kubernetes_cluster" "azureKubernates" {
    } 
   }
    service_principal {
-    client_id     = "c376880f-7151-49bd-bc5b-e880c8af7113"
-    client_secret = "K628Q~6qGEPU5zYqe0N1Yt~MKlfTYwrT-.nSibfb"
+    client_id     =  var.client_id 
+    client_secret =  va.client_secret
   }
    network_profile {
       network_plugin = "azure"
