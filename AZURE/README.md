@@ -17,20 +17,45 @@ kubectl get pods
 kubectl create namespace keycloak
 
 
-kubectl apply -f postgres-deployment.yaml
-kubectl apply -f keycloak-deployment.yaml
+kubectl apply -f postgres-deployment.yaml -n keycloak
+kubectl apply -f postgres-service.yaml -n keycloak
 
+kubectl apply -f keycloak-deployment.yaml -n keycloak
+kubectl apply -f keycloak-service.yaml -n keycloak
+
+```
+
+Make sure all pods are runing
+
+```
 kubectl get pod -n keycloak
+```
 
-kubectl logs <postgres-pod-name> -n keycloak
-kubectl describe pod <keycloak-pod-name> -n keycloak
+For Debuging
 
-kubectl apply -f keycloak-service.yaml
-kubectl apply -f postgres-service.yaml
+```
+kubectl logs <pod-name> -n keycloak
+kubectl describe pod <pod-name> -n keycloak
 
-kubectl logs <keycloak-pod-name> -n keycloak --previous
-kubectl logs <postgres-pod-name> -n keycloak --previous
+```
 
+To check previous logs 
+
+```
+kubectl logs <pod-name> -n keycloak --previous
+kubectl logs <pod-name> -n keycloak --previous
+
+```
+To access the applicaiton you need to get the external IP adress and port  `htttp://http://xx.xx.xxx.xxx:8080/`
+
+```
 kubectl get svc -n keycloak
+
+```
+
+
+
+To make sure postgres is attach as presistance volume
+```
 kubectl describe pvc -n keycloak
 ```
