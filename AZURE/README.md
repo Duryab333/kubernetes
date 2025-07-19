@@ -1,4 +1,4 @@
-# Keycloak on AKS using Terraform  
+# Keycloak on AKS using CLI
 In this Project, we are going to **Deploying the keycloak applicaion** on Azure kubernates cluster and attach **Postgres Database** as presistance volum. All done using terraform and ansible. 
 
 Step 1:
