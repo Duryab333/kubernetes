@@ -39,3 +39,13 @@ variable "dns_prefix" {
     description = "DNS prefix name"
   
 }
+variable "client_id" {
+    type = string
+    description = "client id of serivce principle"
+}
+
+variable "client_secret" {
+    type = string
+    description = "client secret of serivce principle
+  
+}
