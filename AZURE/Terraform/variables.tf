@@ -46,6 +46,6 @@ variable "client_id" {
 
 variable "client_secret" {
     type = string
-    description = "client secret of serivce principle
+    description = "client secret of serivce principle"
   
 }
