@@ -40,7 +40,7 @@ resource "azurerm_kubernetes_cluster" "azureKubernates" {
   }
    service_principal {
     client_id     =  var.client_id 
-    client_secret =  va.client_secret
+    client_secret =  var.client_secret
   }
    network_profile {
       network_plugin = "azure"
