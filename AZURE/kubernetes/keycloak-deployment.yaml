@@ -18,10 +18,10 @@ spec:
           image: quay.io/keycloak/keycloak:latest
           args: ["start-dev"]
           env:
-            - name: KC_HOSTNAME
-              value: keycloak.20.215.139.13.nip.io
-            - name: KC_HOSTNAME
-              value: keycloak.20.215.139.13.nip.io
+            #- name: KC_HOSTNAME
+            #  value: keycloak.20.215.139.13.nip.io
+            #- name: KC_HOSTNAME
+            #  value: keycloak.20.215.139.13.nip.io
             - name: KC_DB
               value: postgres
             - name: KC_DB_URL_HOST
