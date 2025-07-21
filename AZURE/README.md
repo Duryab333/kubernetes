@@ -59,3 +59,6 @@ To make sure postgres is attach as presistance volume
 ```
 kubectl describe pvc -n keycloak
 ```
+
+
+<img width="1089" height="608" alt="image" src="https://github.com/user-attachments/assets/ee1f4dc7-ee99-4fe4-93a6-0a839175ebdb" />
