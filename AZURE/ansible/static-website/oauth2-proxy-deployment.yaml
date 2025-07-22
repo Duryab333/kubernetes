@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-proxy
+  namespace: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        app: oauth2-proxy
+    spec:
+      containers:
+        - name: oauth2-proxy
+          image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
+          args:
+            - --provider=keycloak
+            - --http-address=0.0.0.0:4180
+            - --email-domain=*
+            - --upstream=http://static-site-service.keycloak.svc.cluster.local:80
+            - --redirect-url=http://static.20.215.141.154.nip.io/oauth2/callback
+            - --client-id=static-client
+            - --client-secret=GfxOQeV6Qs0FGJTufZC6iRgUdyRly9gY
+            - --cookie-secret=FRBwglCCIZXHpLEAABquOvvzZoREuZRv
+            - --oidc-issuer-url=http://keycloak.20.215.141.154.nip.io/realms/your-realm
+          ports:
+            - containerPort: 4180

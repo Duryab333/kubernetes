@@ -1,0 +1,20 @@
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: static-site
+  namespace: {{ app_namespace }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: static.{{ external_ip }}.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: static-site-service
+            port:
+              number: 80

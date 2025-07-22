@@ -1,0 +1,142 @@
+- name: Deploy Static Site with Keycloak & PostgreSQL on AKS
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    ingress_namespace: ingress-nginx
+    app_namespace: keycloak
+    base_path: .
+    vars:
+    win_kubeconfig_path: "/mnt/c/Users/{{ lookup('env', 'USERNAME') }}/.kube/config"
+
+
+  vars_prompt:
+    - name: sub_id
+      prompt: "Enter your Azure Subscription ID"
+      private: no
+
+    - name: resource_group
+      prompt: "Enter your Resource Group name"
+      private: no
+
+    - name: aks_cluster
+      prompt: "Enter your AKS Cluster name"
+      private: no
+
+  tasks:
+
+    - name: Set Azure Subscription
+      ansible.builtin.command: >
+        az account set --subscription {{ sub_id }}
+
+    - name: Connect to AKS Cluster
+      ansible.builtin.command: >
+        az aks get-credentials --resource-group {{ resource_group }} --name {{ aks_cluster }} --overwrite-existing
+    - name: Create Keycloak namespace
+      command: kubectl create namespace keycloak
+      register: create_ns
+      failed_when: create_ns.rc != 0 and 'AlreadyExists' not in create_ns.stderr
+      ignore_errors: true
+    
+
+
+    - name: Deploy NGINX Ingress Controller
+      ansible.builtin.command: >
+        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.0/deploy/static/provider/cloud/deploy.yaml
+
+    - name: Get External IP with retries
+      ansible.builtin.command: >
+        kubectl get svc ingress-nginx-controller -n {{ ingress_namespace }} -o jsonpath={.status.loadBalancer.ingress[0].ip}
+      register: ingress_ip_result
+      retries: 10
+      delay: 30
+      until: ingress_ip_result.stdout != ""
+      changed_when: false
+
+    - name: Set external_ip fact
+      ansible.builtin.set_fact:
+        external_ip: "{{ ingress_ip_result.stdout }}"
+
+    - name: Set external_ip fact is # I added this one new
+      set_fact:
+        external_ip: "{{ ingress_ip_result.stdout }}"
+
+    - name: Show external IP
+      ansible.builtin.debug:
+        msg: "External IP resolved to: {{ external_ip }}"
+
+    - name: Deploy PostgreSQL
+      ansible.builtin.command: >
+        kubectl apply -f {{ base_path }}/keycloak-posgres/postgres-deployment.yaml
+
+    - name: Deploy PostgreSQL Service
+      ansible.builtin.command: >
+        kubectl apply -f {{ base_path }}/keycloak-posgres/postgres-service.yaml
+
+    - name: Inject external IP using template
+      template:
+        src: templates/keycloak-deployment.yaml.j2
+        dest: keycloak-posgres/keycloak-deployment.yaml
+
+
+    - name: Deploy Keycloak manifest
+      command: kubectl apply -f {{ base_path }}/keycloak-posgres/keycloak-deployment.yaml
+
+
+    - name: Deploy Keycloak Deployment
+      ansible.builtin.command: >
+        kubectl apply -f {{ base_path }}/keycloak-posgres/keycloak-deployment.yaml
+
+    - name: Deploy Keycloak Service
+      ansible.builtin.command: >
+        kubectl apply -f {{ base_path }}/keycloak-posgres/keycloak-service.yaml
+
+
+    - name: Inject external IP in Keycloak Ingress using template
+      template:
+        src: templates/keycloak-ingress.yaml.j2
+        dest: keycloak-posgres/keycloak-ingress.yaml
+
+    #- name: Replace <EXTERNAL-IP> in Keycloak Ingress
+    #  ansible.builtin.replace:
+    #    path: "{{ base_path }}/keycloak-posgres/keycloak-ingress.yaml"
+    #    regexp: "keycloak.<EXTERNAL-IP>.nip.io"
+    #    replace: "keycloak.{{ external_ip }}.nip.io"
+
+    - name: Apply Keycloak Ingress
+      ansible.builtin.command: >
+        kubectl apply -f {{ base_path }}/keycloak-posgres/keycloak-ingress.yaml
+
+    - name: Create ConfigMap for Static Site
+      ansible.builtin.shell: >
+        kubectl create configmap static-html  --namespace={{ app_namespace }}   --from-file={{ base_path }}/static-website/index.html    --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Deploy Static Site Pod
+      ansible.builtin.command: >
+        kubectl apply -f {{ base_path }}/static-website/static-site-pod.yaml
+
+    - name: Deploy Static Site Service
+      ansible.builtin.command: >
+        kubectl apply -f {{ base_path }}/static-website/static-site-service.yaml
+
+    #- name: Replace <EXTERNAL-IP> in Static Site Ingress
+    #  ansible.builtin.replace:
+    #    path: "{{ base_path }}/static-website/static-site-ingress.yaml"
+    #    regexp: "static.<EXTERNAL-IP>.nip.io"
+    #    replace: "static.{{ external_ip }}.nip.io"
+
+    - name: Inject external IP in Keycloak Ingress using template
+      template:
+        src: templates/static-site-ingress.yaml.j2
+        dest: static-website/static-site-ingress.yaml
+
+    - name: Apply Static Site Ingress
+      ansible.builtin.command: >
+        kubectl apply -f {{ base_path }}/static-website/static-site-ingress.yaml
+
+    - name: Output Access URLs
+      ansible.builtin.debug:
+        msg:
+          - "✅ Keycloak URL: http://keycloak.{{ external_ip }}.nip.io"
+          - "✅ Static Site URL: http://static.{{ external_ip }}.nip.io"
