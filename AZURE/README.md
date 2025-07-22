@@ -94,12 +94,23 @@ Deployed a basic HTML-based static site using a Kubernetes pod and service. It i
 
 3. After successful login, oauth2-proxy redirects the user back to the static page with access.
 
-✅ This flow ensures only authenticated users can access the static content, making it suitable for internal dashboards, restricted tools, etc.
+ This flow ensures only authenticated users can access the static content, making it suitable for internal dashboards, restricted tools, etc.
 
 ## 🚧 Work In Progress
-I am currently finalizing the Ansible playbook automation for oauth2-proxy 
-Next is making github flows
+I am currently finalizing the Ansible playbook automation for oauth2-proxy, ensuring it is fully integrated and deployed without manual steps.
 
+ **Next Steps**
+- Implement GitHub Actions workflows for CI/CD:
+
+   - Automate Terraform deployment of Azure resources.
+
+   - Automate Ansible-based application deployment on AKS.
+
+   - Integrate validation steps (e.g., terraform validate, ansible-lint, kubectl apply --dry-run).
+
+   - Trigger deployments on main branch updates.
+
+This will fully automate the infrastructure and application lifecycle from code commit to production deployment.
 
 ## 📁 GitHub Repository
 You can find all the Terraform, Ansible, and Kubernetes manifests used in this project here:
