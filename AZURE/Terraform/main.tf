@@ -10,7 +10,7 @@ resource "azurerm_kubernetes_cluster" "azureKubernates" {
   resource_group_name = var.resource_group_name
   dns_prefix          = var.dns_prefix
   kubernetes_version = var.kubernates_version
-   node_resource_group = "${var.resource_group_name}-nrg"
+  node_resource_group = "${var.resource_group_name}-nrg"
 
   # default_node_pool {
   #   name       = "default"
