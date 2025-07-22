@@ -2,13 +2,12 @@
 
 
 ## Description
-This project includes runing a Kubernates cluster on Azure. 
--  then deploying keyCloak applicaiton in one of its worker nodes.
--  Attaching it with postgress database for persistant volum
--  Make a system diagram 
+This project delivers a secure, containerized infrastructure on Azure Kubernetes Service (AKS) to host a static website protected by Keycloak-based OAuth2 authentication using oauth2-proxy. The architecture is built with Terraform for infrastructure provisioning, Ansible for configuration and deployment.
+
+<img width="1845" height="600" alt="diagram-export-7-22-2025-1_53_04-PM" src="https://github.com/user-attachments/assets/5856c117-2d95-4b4b-a910-1f0e8811ba8c" />
 
 
-# Local Deployment of AKS
+# Local Deployment of keycloak 
 
 In this step I wil be deploying the minikube cluser locally. and install Keycloak inside it in so lets start
 This deplyment is for windowns &linux
