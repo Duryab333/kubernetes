@@ -2,7 +2,7 @@
 
 After making the resources on terraform you need to run ansible playbook.yml to deploy keylcoak on pode.
 
-## Pre-requizits
+## Prerequisites
 
 -  install ansible
 
@@ -13,13 +13,13 @@ Run commands
 To Run ansible playbook 
 
 ```
-ansible-playbook keycloak-deploy.yaml   --extra-vars "subscription_id= <subscription_id> resource_group=<rg_name> cluster_name=<cluster_name>"
+ansible-playbook keycloak-ansible.yaml   --extra-vars "subscription_id= <subscription_id> resource_group=<rg_name> cluster_name=<cluster_name>"
 
 ```
 
 ## Tip:
 
-if you are using WSL for runin glinux on windows and find error is 
+if you are using WSL for runing linux on windows and find error is 
 
 `ERROR :The connection to the server localhost:8080 was refused`
 
