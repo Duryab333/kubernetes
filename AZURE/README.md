@@ -1,64 +1,24 @@
 # Keycloak on AKS using CLI
 In this Project, we are going to **Deploying the keycloak applicaion** on Azure kubernates cluster and attach **Postgres Database** as presistance volum. All done using terraform and ansible. 
 
-Step 1:
+### Step 1:
 Connect with Azure through CLI.
 
+### Step 2:
+Go to Terrafrom folder and make resuorces on AZURE. You will find guid in Terrafrom/README.md file
+
+### Step 3:
 Make kubernates cluster by running the files that are in terraform folder. Read the README file insdie the terraform folder for that. 
+(!MAKE SURE YOU WRITE YOU WON terrafrom.tfvars file)
+### Step 4:
+After Making resources go to ansible folder there you run ansible-playbook.
+(!MAKE SURE YOU PUT WRITE VARIABLES )
 
+Ansible-playbook will give you output urls on which your keycloak and  web server with a static web page are runing
 
-```
-az account set --subscription <Sub-id>
-az aks get-credentials --resource-group <resource-group> --name <cluster-name> --overwrite-existing
-kubectl get deployments --all-namespaces=true
+### NEXT Step :
 
-kubectl get pods
+Netstep is to authenticate web server with a static web page whose access is
+controlled by the Keycloak.
 
-kubectl create namespace keycloak
-
-
-kubectl apply -f postgres-deployment.yaml -n keycloak
-kubectl apply -f postgres-service.yaml -n keycloak
-
-kubectl apply -f keycloak-deployment.yaml -n keycloak
-kubectl apply -f keycloak-service.yaml -n keycloak
-
-```
-
-Make sure all pods are runing
-
-```
-kubectl get pod -n keycloak
-```
-
-For Debuging
-
-```
-kubectl logs <pod-name> -n keycloak
-kubectl describe pod <pod-name> -n keycloak
-
-```
-
-To check previous logs 
-
-```
-kubectl logs <pod-name> -n keycloak --previous
-kubectl logs <pod-name> -n keycloak --previous
-
-```
-To access the applicaiton you need to get the external IP adress and port  `htttp://http://xx.xx.xxx.xxx:8080/`
-
-```
-kubectl get svc -n keycloak
-
-```
-
-
-
-To make sure postgres is attach as presistance volume
-```
-kubectl describe pvc -n keycloak
-```
-
-
-<img width="1089" height="608" alt="image" src="https://github.com/user-attachments/assets/ee1f4dc7-ee99-4fe4-93a6-0a839175ebdb" />
+# Report 
